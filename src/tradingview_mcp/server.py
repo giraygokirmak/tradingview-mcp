@@ -1252,6 +1252,8 @@ def _offload_sync_tools() -> int:
 _OFFLOADED_TOOL_COUNT = _offload_sync_tools()
 
 
+from mcp.server.transport_security import TransportSecuritySettings
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="TradingView Screener MCP server")
     parser.add_argument(
@@ -1272,13 +1274,15 @@ def main() -> None:
     if args.transport == "stdio":
         mcp.run()
     else:
-        try:
-            mcp.settings.host = args.host
-            mcp.settings.port = args.port
-        except Exception:
-            pass
-        mcp.run(transport="streamable-http", host_origin_protection=False) 
-
+        mcp.settings.host = args.host
+        mcp.settings.port = args.port
+        # LAN üzerinden erişim için DNS rebinding korumasını kapat.
+        # run() bunu parametre olarak kabul etmiyor; oturum yöneticisi
+        # bu ayarı streamable_http_app() çağrılırken settings'ten okur.
+        mcp.settings.transport_security = TransportSecuritySettings(
+            enable_dns_rebinding_protection=False,
+        )
+        mcp.run(transport="streamable-http")
 
 if __name__ == "__main__":
     main()
