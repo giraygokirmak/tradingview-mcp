@@ -1277,7 +1277,7 @@ def main() -> None:
             mcp.settings.port = args.port
         except Exception:
             pass
-        mcp.run(transport="streamable-http")
+        mcp.run(transport="streamable-http", host_origin_protection=False) 
 
 
 if __name__ == "__main__":
